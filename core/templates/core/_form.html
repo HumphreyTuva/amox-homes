@@ -1,7 +1,15 @@
 <form method="post" enctype="multipart/form-data" x-data="{busy:false}" @submit="busy=true" class="grid gap-4">{% csrf_token %}<input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+<div data-pf-bar class="hidden items-center justify-between gap-2 rounded-xl bg-mist px-3 py-2 text-sm text-navy"><span>✓ Filled in from your last visit.</span><button type="button" data-pf-clear class="underline font-semibold whitespace-nowrap">Not you? Clear</button></div>
 {% if form.errors %}<p class="bg-red-50 text-red-700 text-sm rounded-lg p-3" role="alert">Please fix the highlighted fields below.</p>{% endif %}
-{% for f in form %}{% if f.field.widget.input_type != 'checkbox' %}<label class="block text-sm font-semibold text-slate-700">{{ f.label }}{% if f.field.required %} *{% endif %}<div class="mt-1 font-normal">{{ f }}</div>
-{% if f.help_text %}<span class="text-xs font-normal text-slate-500">{{ f.help_text }}</span>{% endif %}{% for e in f.errors %}<span class="block text-red-600 text-xs">{{ e }}</span>{% endfor %}</label>{% endif %}{% endfor %}
-{% with first=0 %}<fieldset class="grid grid-cols-2 gap-2 border-t pt-3 empty:hidden">{% for f in form %}{% if f.field.widget.input_type == 'checkbox' %}<label class="flex items-center gap-2 text-sm bg-mist/60 rounded-lg px-3 py-2">{{ f }}<span>{{ f.label }}</span></label>{% endif %}{% endfor %}</fieldset>{% endwith %}
-<p class="text-xs text-slate-500">By sending this you agree to our <a class="underline" href="{% url 'privacy' %}">Privacy Policy</a>.</p>
+{% for f in form %}{% if f.field.widget.input_type != 'checkbox' %}{% if f.name in form.more and not f.field.required %}{% else %}{% include "core/_field.html" %}{% endif %}{% endif %}{% endfor %}
+<fieldset class="grid grid-cols-2 gap-2 border-t pt-3 empty:hidden">{% for f in form %}{% if f.field.widget.input_type == 'checkbox' %}<label class="flex items-center gap-2 text-sm bg-mist/60 rounded-lg px-3 py-2">{{ f }}<span>{{ f.label }}</span></label>{% endif %}{% endfor %}</fieldset>
+{% if form.more %}<details class="rounded-xl border border-dashed border-slate-300 px-3 py-2" {% if form.errors %}open{% endif %}><summary class="cursor-pointer text-sm font-semibold text-brand py-1">Add more details (optional)</summary><div class="grid gap-4 mt-3">{% for f in form %}{% if f.field.widget.input_type != 'checkbox' %}{% if f.name in form.more and not f.field.required %}{% include "core/_field.html" %}{% endif %}{% endif %}{% endfor %}</div></details>{% endif %}
+<p class="text-xs text-slate-500">By sending this you agree to our <a class="underline" href="{% url 'privacy' %}">Privacy Policy</a>. To save you typing, your name and contact details are remembered on this device only.</p>
 <button :disabled="busy" class="bg-brand hover:bg-navy disabled:opacity-60 text-white font-semibold rounded-full px-6 py-3"><span x-text="busy ? 'Sending…' : '{{ btn|default:"Send" }}'"></span></button></form>
+<script>(function(s){var f=s.previousElementSibling,K='amox_profile',p={},els=f.querySelectorAll('[data-pf]'),bar=f.querySelector('[data-pf-bar]'),err=f.querySelector('[role=alert]'),n=0;
+try{p=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
+if(!err)els.forEach(function(e){var v=p[e.dataset.pf];if(!v)return;if(e.tagName==='SELECT'){if(![].some.call(e.options,function(o){return o.value===v}))return}else if(e.value)return;e.value=v;n++});
+if(n){bar.classList.remove('hidden');bar.classList.add('flex')}
+f.addEventListener('submit',function(){els.forEach(function(e){if(e.value)p[e.dataset.pf]=e.value});try{localStorage.setItem(K,JSON.stringify(p))}catch(x){}});
+f.querySelector('[data-pf-clear]').onclick=function(){try{localStorage.removeItem(K)}catch(x){}els.forEach(function(e){if(e.tagName!=='SELECT')e.value=''});bar.classList.add('hidden');bar.classList.remove('flex')};
+})(document.currentScript)</script>

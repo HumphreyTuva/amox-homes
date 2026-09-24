@@ -1,0 +1,2 @@
+<label class="block text-sm font-semibold text-slate-700">{{ f.label }}{% if f.field.required %} *{% endif %}<div class="mt-1 font-normal">{{ f }}</div>
+{% if f.help_text %}<span class="text-xs font-normal text-slate-500">{{ f.help_text }}</span>{% endif %}{% for e in f.errors %}<span class="block text-red-600 text-xs">{{ e }}</span>{% endfor %}</label>

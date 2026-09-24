@@ -1,5 +1,6 @@
 from django.urls import path
-from . import views as v
+from . import views as v, console as c
+from django.views.generic import RedirectView
 urlpatterns = [
     path("", v.home, name="home"),
     path("houses/", v.property_list, name="houses"),
@@ -15,5 +16,14 @@ urlpatterns = [
     path("thanks/", v.thanks, name="thanks"),
     path("privacy/", v.legal, {"page": "privacy"}, name="privacy"),
     path("terms/", v.legal, {"page": "terms"}, name="terms"),
-    path("dashboard/", v.dashboard, name="dashboard"),
+    path("dashboard/", RedirectView.as_view(pattern_name="console")),
+    path("console/", c.home, name="console"),
+    path("console/login/", c.login_view, name="console_login"),
+    path("console/logout/", c.logout_view, name="console_logout"),
+    path("console/leads/", c.leads, name="console_leads"),
+    path("console/leads/<int:pk>/", c.lead_update, name="console_lead_update"),
+    path("console/houses/", c.props, name="console_props"),
+    path("console/houses/<int:pk>/", c.prop_action, name="console_prop_action"),
+    path("console/partners/", c.providers, name="console_providers"),
+    path("console/partners/<int:pk>/", c.provider_action, name="console_provider_action"),
 ]

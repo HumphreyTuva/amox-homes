@@ -99,6 +99,7 @@ def request_service(request, kind):
     if request.method == "POST" and form.is_valid():
         return _save_lead(request, kind, form)
     return render(request, "core/form_page.html", {"title": title, "intro": intro, "form": form, "btn": "Send request",
+                                                  "wa_alt": wa_link("Hello AMOX Homes, I need help finding a house. My institution or workplace is ___, my budget is ___ and I would like to live in ___." if kind == "house" else f"Hello AMOX Homes, I need help with: {title}."),
                                                   "partners": ServiceProvider.objects.filter(category=kind, status="approved")})
 
 def services(request): return render(request, "core/services.html", {"services": list(SERVICES.items())})
