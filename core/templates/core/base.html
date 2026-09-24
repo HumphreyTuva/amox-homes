@@ -1,0 +1,27 @@
+{% load static %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}AMOX Homes | Houses & Settlement Support in Malindi{% endblock %}</title>
+<meta name="description" content="{% block desc %}Houses, bedsitters and student accommodation in Malindi and Kilifi, plus internet, gas, mattress hire and moving support.{% endblock %}">
+<meta name="theme-color" content="#0a2a6b">
+<meta property="og:type" content="website"><meta property="og:site_name" content="AMOX Homes"><meta property="og:title" content="{% block ogtitle %}AMOX Homes | Connecting Students & Professionals to a Better Lifestyle{% endblock %}"><meta property="og:image" content="{% block ogimage %}{{ request.scheme }}://{{ request.get_host }}{% static 'core/og.jpg' %}{% endblock %}">
+<link rel="icon" href="{% static 'core/logo-sm.png' %}">
+<link rel="stylesheet" href="{% static 'core/site.css' %}">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<script>document.documentElement.classList.add('js')</script>
+{% block head %}{% endblock %}</head>
+<body class="text-slate-800 antialiased" x-data="{open:false,sc:false}" @scroll.window.passive="sc=window.scrollY>8" @keydown.escape.window="open=false" x-effect="document.documentElement.style.overflow=open?'hidden':''">
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
+<header class="sticky top-0 z-50 bg-white transition-shadow duration-300" :class="sc?'shadow-lg':'border-b'"><div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+<a href="{% url 'home' %}" class="flex items-center gap-2 font-extrabold text-navy text-base sm:text-lg shrink-0"><img src="{% static 'core/logo-sm.png' %}" alt="" width="40" height="40" class="h-10 w-10 object-cover object-top"><span>AMOX<span class="text-sky">Homes</span></span></a>
+<nav class="hidden lg:flex items-center gap-5 text-sm font-medium" aria-label="Main"><a class="nl hidden xl:inline" href="{% url 'home' %}">Home</a><a class="nl" href="{% url 'services' %}">Services</a><a class="nl" href="{% url 'landlords' %}">For Landlords</a><a class="nl" href="{% url 'providers' %}">For Providers</a><a class="nl" href="{% url 'about' %}">About Us</a><a class="nl" href="{% url 'contact' %}">Contact</a>
+<a href="{% url 'houses' %}" class="bg-brand text-white rounded-full px-4 py-2 font-semibold hover:scale-105 transition">Find a House</a><a href="{% url 'list_property' %}" class="bg-coral text-slate-900 rounded-full px-4 py-2 font-semibold hover:scale-105 transition">List Your Property</a></nav>
+<div class="flex items-center lg:hidden"><a href="{% url 'houses' %}" class="bg-brand text-white text-xs sm:text-sm font-semibold rounded-full px-3 sm:px-4 py-2 whitespace-nowrap">Find a House</a><button class="burger relative z-10" :class="{'is-open':open}" @click="open=!open" :aria-expanded="open" aria-controls="mnav" aria-label="Menu"><span></span><span></span><span></span></button></div></div>
+{% include "core/_drawer.html" %}</header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer class="bg-navy text-blue-100 mt-16 pt-10 pb-24 text-sm"><div class="max-w-6xl mx-auto px-4 grid gap-8 md:grid-cols-4">
+<div><b class="text-white text-base">AMOX Homes</b><p class="mt-1">Connecting Students & Professionals to a Better Lifestyle. A division of AMOX Solutions Ltd.</p></div>
+<div><b class="text-white text-base">Explore</b><ul class="mt-1 space-y-1"><li><a href="{% url 'houses' %}">Find a House</a></li><li><a href="{% url 'services' %}">Services</a></li><li><a href="{% url 'landlords' %}">For Landlords</a></li><li><a href="{% url 'providers' %}">For Service Providers</a></li><li><a href="{% url 'about' %}">About Us</a></li></ul></div>
+<div><b class="text-white text-base">Contact</b><p class="mt-1">📞 <a class="underline" href="tel:{{ PHONE }}">{{ PHONE }}</a><br>✉️ <a class="underline" href="mailto:{{ EMAIL }}">{{ EMAIL }}</a><br>P.O. Box 321-80200 Malindi</p></div>
+<div><b class="text-white text-base">Stay safe</b><p class="mt-1">Never pay a deposit or rent before viewing the house and confirming the landlord.</p><p class="mt-2"><a class="underline" href="{% url 'privacy' %}">Privacy</a> · <a class="underline" href="{% url 'terms' %}">Terms</a> · <a class="underline" href="{% url 'contact' %}">Report a listing</a></p></div></div>
+<p class="max-w-6xl mx-auto px-4 mt-8 text-xs text-blue-200">© {% now "Y" %} AMOX Solutions Ltd.</p></footer>
+{% block wa %}<a href="{{ WA }}" target="_blank" rel="noopener" class="fixed right-4 bottom-4 z-40 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-full px-5 py-3 shadow-lg"><span aria-hidden="true">💬</span> <span class="sm:hidden">WhatsApp</span><span class="hidden sm:inline">WhatsApp AMOX Homes</span></a>{% endblock %}
+<script>(function(){var els=document.querySelectorAll('[data-reveal]');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});els.forEach(function(e){io.observe(e)})})()</script></body></html>

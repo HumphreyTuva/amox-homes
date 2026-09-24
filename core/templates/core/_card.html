@@ -1,0 +1,8 @@
+<a href="{{ p.get_absolute_url }}" class="lift zoom block bg-white rounded-2xl border overflow-hidden">
+{% with m=p.cover %}{% if m %}<img src="{{ m.thumb.url }}" alt="{{ p.title }}" width="400" height="176" loading="lazy" class="h-44 w-full object-cover">{% else %}<div class="h-44 grid place-items-center bg-gradient-to-br from-mist to-sky/40 text-5xl" aria-hidden="true">🏠</div>{% endif %}{% endwith %}
+<div class="p-4 space-y-1"><div class="flex flex-wrap gap-1">{% if p.is_verified %}<span class="text-xs font-bold bg-green-100 text-green-800 rounded px-2 py-0.5">✓ AMOX Verified</span>{% else %}<span class="text-xs font-bold bg-amber-100 text-amber-800 rounded px-2 py-0.5">{{ p.get_verification_display }}</span>{% endif %}
+{% if p.units_vacant %}<span class="text-xs font-bold bg-sky/15 text-navy rounded px-2 py-0.5">{{ p.units_vacant }} vacant</span>{% endif %}</div>
+<h3 class="font-bold text-navy text-lg">{{ p.title }}</h3><p class="text-slate-500 text-sm">📍 {{ p.area }} · {{ p.house_type }}{% if p.km %} · {{ p.km }} km away{% endif %}</p>
+<p class="text-brand font-extrabold text-xl">KSh {{ p.rent|floatformat:"0g" }}<span class="text-sm font-normal text-slate-500"> /month</span></p>
+<div class="flex flex-wrap gap-1">{% for a in p.amenity_list|slice:":3" %}<span class="text-xs bg-mist text-navy rounded px-2 py-0.5">{{ a }}</span>{% endfor %}</div>
+<span class="inline-block mt-2 text-sm font-semibold text-brand">View details</span></div></a>

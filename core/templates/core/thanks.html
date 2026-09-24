@@ -1,0 +1,8 @@
+{% extends "core/base.html" %}{% block title %}Thank you | AMOX Homes{% endblock %}
+{% block content %}<section class="max-w-xl mx-auto px-4 py-16 text-center"><div class="text-6xl">✅</div>
+{% if lead %}<h1 class="text-3xl font-extrabold text-navy mt-3">Request received</h1><p class="mt-2 text-slate-600">Your reference is <b>#{{ lead.pk }}</b>. Send it on WhatsApp so we can reply fast.</p>
+<a href="{{ lead.wa_link }}" target="_blank" rel="noopener" class="inline-block mt-6 bg-green-600 text-white font-semibold rounded-full px-6 py-3">Send on WhatsApp</a>
+{% elif listed %}<h1 class="text-3xl font-extrabold text-navy mt-3">Listing submitted</h1><p class="mt-2 text-slate-600">"{{ listed.title }}" will go live after our team reviews it.</p>
+{% else %}<h1 class="text-3xl font-extrabold text-navy mt-3">Registration received</h1><p class="mt-2 text-slate-600">We will contact you once your business is approved.</p>{% endif %}
+{% if lead or listed %}<div class="mt-10 text-left"><h2 class="font-bold text-navy">Settling in? We can help with that too</h2><div class="grid grid-cols-2 gap-2 mt-3 text-sm font-semibold text-navy"><a class="border rounded-xl p-3" href="{% url 'request' 'internet' %}">📶 Internet</a><a class="border rounded-xl p-3" href="{% url 'request' 'gas' %}">🔥 Gas cylinder</a><a class="border rounded-xl p-3" href="{% url 'request' 'items' %}">🛏️ Mattress &amp; items</a><a class="border rounded-xl p-3" href="{% url 'request' 'moving' %}">🚚 Moving help</a></div></div>{% endif %}
+<p class="mt-6"><a class="text-brand underline" href="{% url 'home' %}">Back to home</a></p></section>{% endblock %}

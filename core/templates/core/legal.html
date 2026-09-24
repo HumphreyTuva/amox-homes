@@ -1,0 +1,11 @@
+{% extends "core/base.html" %}{% block title %}{% if page == 'privacy' %}Privacy Policy{% else %}Terms of Use{% endif %} | AMOX Homes{% endblock %}
+{% block content %}<article class="max-w-3xl mx-auto px-4 py-10 space-y-3 text-slate-700">
+{% if page == 'privacy' %}<h1 class="text-3xl font-extrabold text-navy">Privacy Policy</h1>
+<p>AMOX Homes, a division of AMOX Solutions Ltd, collects the details you give us (name, phone, email, requirements and, for landlords, property details and photos) so we can find houses and services for you and contact you about them.</p>
+<p>We share your name and phone with a landlord or service provider only when you ask us to connect you. We do not sell your data.</p>
+<p>We keep your details while we are helping you and for as long as needed to run the service. Under the Data Protection Act, 2019 you may ask to see, correct or delete your data by writing to <a class="underline" href="mailto:{{ EMAIL }}">{{ EMAIL }}</a>.</p>
+{% else %}<h1 class="text-3xl font-extrabold text-navy">Terms of Use</h1>
+<p>AMOX Homes connects tenants with landlords and service providers. We are a connection platform and do not own, rent or guarantee the properties or services listed.</p>
+<p>Listings can change. Always view a house and confirm the landlord before you pay a deposit or rent. Do not pay anyone who is not verified, and report suspicious listings to us.</p>
+<p>Landlords and providers must give accurate information. We may reject, edit or remove any listing or account.</p>
+{% endif %}<p class="text-xs text-slate-400">Draft text. Have it reviewed by a lawyer before launch.</p></article>{% endblock %}
