@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
-from .models import Lead, Property, SearchLog, ServiceProvider
+from .models import Announcement, Lead, Property, SearchLog, ServiceProvider, _safe_link
 
 PROP_ACTIONS = {"approve": dict(status="approved"), "reject": dict(status="rejected"), "verify": dict(verification="verified", verified_on=date.today()),
                 "unverify": dict(verification="landlord"), "feature": dict(featured=True), "unfeature": dict(featured=False),
@@ -26,8 +26,9 @@ def staff(view):
 def _ctx(active, **extra):
     nl, npr, nv = (Lead.objects.filter(status="new").count(), Property.objects.filter(status="pending").count(),
                    ServiceProvider.objects.filter(status="pending").count())
-    return {"active": active, "nav": [("home", "console", "Overview", 0), ("leads", "console_leads", "Leads", nl),
-            ("props", "console_props", "Houses", npr), ("providers", "console_providers", "Partners", nv)], **extra}
+    return {"active": active, "nav": [("home", "console", "Overview", 0, "grid"), ("leads", "console_leads", "Leads", nl, "inbox"),
+            ("props", "console_props", "Houses", npr, "home"), ("providers", "console_providers", "Partners", nv, "store"),
+            ("announcements", "console_announcements", "Announcements", 0, "mega")], **extra}
 
 def _back(request, default):
     nxt = request.POST.get("next", "")
@@ -132,3 +133,35 @@ def provider_action(request, pk):
     if act in PROV_ACTIONS:
         ServiceProvider.objects.filter(pk=pk).update(status=PROV_ACTIONS[act]); messages.success(request, f"Partner {PROV_ACTIONS[act]}.")
     return _back(request, "console_providers")
+
+
+def _date(v):
+    try: return date.fromisoformat((v or "").strip())
+    except ValueError: return None
+
+def _num(v):
+    try: return max(0, min(int(v), 9999))
+    except (TypeError, ValueError): return 0
+
+@staff
+def announcements(request):
+    if request.method == "POST":
+        text = request.POST.get("text", "").strip()[:140]
+        if text:
+            Announcement.objects.create(text=text, link=_safe_link(request.POST.get("link")), expires_on=_date(request.POST.get("expires_on")), order=_num(request.POST.get("order")))
+            messages.success(request, "Announcement added. It is now live on the homepage.")
+        return redirect("console_announcements")
+    return render(request, "core/console/announcements.html", _ctx("announcements", rows=Announcement.objects.all(), today=timezone.localdate()))
+
+@staff
+@require_POST
+def announcement_action(request, pk):
+    a = get_object_or_404(Announcement, pk=pk); act = request.POST.get("action")
+    if act == "delete": a.delete(); messages.success(request, "Announcement deleted.")
+    elif act == "toggle": a.is_active = not a.is_active; a.save(); messages.success(request, "Now live." if a.is_active else "Hidden from the website.")
+    elif act == "save":
+        text = request.POST.get("text", "").strip()[:140]
+        if text: a.text = text
+        a.link = _safe_link(request.POST.get("link")); a.expires_on = _date(request.POST.get("expires_on")); a.order = _num(request.POST.get("order")); a.save()
+        messages.success(request, "Announcement saved.")
+    return redirect("console_announcements")

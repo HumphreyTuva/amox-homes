@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import *
-from .models import AMENITIES, HOUSE_TYPES, Institution, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
+from .models import AMENITIES, HOUSE_TYPES, Announcement, Institution, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
 
 def _guard(request):
     """Honeypot + simple per-IP limit for public forms."""
@@ -27,8 +27,15 @@ def _int(v):
     except (TypeError, ValueError): return None
 
 def home(request):
-    return render(request, "core/home.html", {"featured": live().order_by("-featured", "-verification", "-created_at")[:6],
+    items = list(Announcement.live())
+    ticker = items * (-(-8 // len(items))) if items else []     # repeat short lists so the strip always fills the screen
+    return render(request, "core/home.html", {"ticker": ticker, "ticker_secs": max(20, 6 * len(ticker)), "featured": live().order_by("-featured", "-verification", "-created_at")[:6],
                                               "institutions": Institution.objects.all(), "services": list(SERVICES.items())})
+
+AMENITY_GROUPS = [("Utilities", ["wifi", "water", "electricity"]),
+                  ("Security and compound", ["security", "cctv", "own_compound", "shared_compound", "parking"]),
+                  ("Inside the house", ["furnished", "tiles", "fans", "ceiling", "wardrobe", "ac", "kitchen", "balcony", "laundry"]),
+                  ("Lifestyle and trust", ["pet_friendly"])]
 
 def property_list(request, institution=None):
     g, qs = request.GET, live()
@@ -52,8 +59,13 @@ def property_list(request, institution=None):
         qs = qs.filter(distances__institution=inst).annotate(km=F("distances__km")).order_by("km")
     page = Paginator(qs, 12).get_page(g.get("page"))
     params = g.copy(); params.pop("page", None)
+    labels = dict(AMENITIES); used = {k for _, ks in AMENITY_GROUPS for k in ks}
+    groups = [(t, [(k, labels[k], bool(g.get(k))) for k in ks if k in labels]) for t, ks in AMENITY_GROUPS]
+    extra = [(k, l, bool(g.get(k))) for k, l in AMENITIES if k not in used]
+    if extra: groups.append(("Other", extra))
+    n_active = sum(1 for k in labels if g.get(k)) + (1 if g.get("verified") else 0)
     return render(request, "core/list.html", {"page": page, "inst": inst, "types": HOUSE_TYPES, "amenities": AMENITIES,
-                                              "qs": params.urlencode(), "g": g, "institutions": Institution.objects.all(), "total": page.paginator.count})
+                                              "qs": params.urlencode(), "g": g, "groups": groups, "n_active": n_active, "institutions": Institution.objects.all(), "total": page.paginator.count})
 
 def property_detail(request, slug):
     p = get_object_or_404(Property, slug=slug, status="approved")

@@ -7,7 +7,8 @@ HOUSE_TYPES = [(t, t) for t in ["Single room", "Bedsitter", "Studio", "One bedro
 AMENITIES = [("wifi", "Wi-Fi"), ("water", "Reliable water"), ("electricity", "Electricity"), ("parking", "Parking"),
              ("security", "Security guard"), ("cctv", "CCTV"), ("furnished", "Furnished"), ("own_compound", "Own compound"),
              ("balcony", "Balcony"), ("kitchen", "Kitchen"), ("laundry", "Laundry area"),
-             ("pet_friendly", "Pet-friendly"), ("shared_compound", "Shared compound")]
+             ("pet_friendly", "Pet-friendly"), ("shared_compound", "Shared compound"),
+             ("tiles", "Tiles"), ("fans", "Fans"), ("ceiling", "Ceiling"), ("wardrobe", "Wardrobe"), ("ac", "Air conditioning")]
 
 
 class Institution(models.Model):
@@ -46,6 +47,11 @@ class Property(models.Model):
     laundry = models.BooleanField("Laundry area", default=False)
     pet_friendly = models.BooleanField("Pet-friendly", default=False)
     shared_compound = models.BooleanField(default=False)
+    tiles = models.BooleanField("Tiles", default=False)
+    fans = models.BooleanField("Fans", default=False)
+    ceiling = models.BooleanField("Ceiling", default=False)
+    wardrobe = models.BooleanField("Wardrobe", default=False)
+    ac = models.BooleanField("Air conditioning", default=False)
     nearby_institutions = models.CharField("Nearby schools / colleges", max_length=200, blank=True, default="", help_text="e.g. MKU Malindi, Malindi High School")
     nearby_hospitals = models.CharField("Nearby hospitals / clinics", max_length=200, blank=True, default="")
     nearby_shops = models.CharField("Nearby shops / markets", max_length=200, blank=True, default="")
@@ -162,3 +168,30 @@ class SearchLog(models.Model):
     term = models.CharField(max_length=80)
     created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self): return self.term
+
+
+def _safe_link(v):
+    v = (v or "").strip()
+    return v if (v.startswith("/") and not v.startswith("//")) or v.lower().startswith(("http://", "https://")) else ""
+
+def validate_link(v):
+    from django.core.exceptions import ValidationError
+    if v and not _safe_link(v): raise ValidationError("Use a page like /houses/ or a full web address starting with https://")
+
+class Announcement(models.Model):
+    """News / announcements shown in the scrolling strip under the homepage hero."""
+    text = models.CharField(max_length=140)
+    link = models.CharField("Link (optional)", max_length=200, blank=True, validators=[validate_link], help_text="A page like /houses/ or a full web address")
+    is_active = models.BooleanField("Show on website", default=True)
+    expires_on = models.DateField("Hide after", null=True, blank=True)
+    order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first")
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta: ordering = ["order", "-created_at"]
+    def __str__(self): return self.text
+    @property
+    def safe_link(self): return _safe_link(self.link)
+    @classmethod
+    def live(cls):
+        from django.utils import timezone
+        today = timezone.localdate()
+        return cls.objects.filter(is_active=True).filter(models.Q(expires_on__isnull=True) | models.Q(expires_on__gte=today))

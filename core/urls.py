@@ -24,6 +24,8 @@ urlpatterns = [
     path("console/leads/<int:pk>/", c.lead_update, name="console_lead_update"),
     path("console/houses/", c.props, name="console_props"),
     path("console/houses/<int:pk>/", c.prop_action, name="console_prop_action"),
+    path("console/announcements/", c.announcements, name="console_announcements"),
+    path("console/announcements/<int:pk>/", c.announcement_action, name="console_announcement_action"),
     path("console/partners/", c.providers, name="console_providers"),
     path("console/partners/<int:pk>/", c.provider_action, name="console_provider_action"),
 ]

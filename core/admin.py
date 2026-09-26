@@ -1,6 +1,6 @@
 from datetime import date
 from django.contrib import admin
-from .models import Institution, Property, PropertyMedia, Distance, Lead, ServiceProvider, SearchLog
+from .models import Institution, Property, PropertyMedia, Distance, Lead, ServiceProvider, SearchLog, Announcement
 
 class MediaInline(admin.TabularInline): model = PropertyMedia; extra = 1
 class DistInline(admin.TabularInline): model = Distance; extra = 1
@@ -54,3 +54,8 @@ class ProviderAdmin(admin.ModelAdmin):
 class SearchLogAdmin(admin.ModelAdmin):
     list_display = ("term", "created_at")
     search_fields = ("term",)
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ("text", "is_active", "expires_on", "order")
+    list_editable = ("is_active", "order")

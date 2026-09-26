@@ -75,12 +75,12 @@ class InquiryForm(LeadForm):
 
 # kind -> (title, intro, icon, form)
 SERVICES = {
-    "house": ("Help me find a house", "Tell us what you need. We suggest suitable houses on WhatsApp.", "🏠", HouseForm),
-    "internet": ("Need internet? We've got you connected", "We link you to a provider that covers your area.", "📶", InternetForm),
-    "gas": ("Gas cylinder hire", "Cylinder, cooker and delivery arranged for you.", "🔥", GasForm),
-    "items": ("Move in without buying everything", "Hire or buy a mattress and basic household items.", "🛏️", ItemsForm),
-    "moving": ("Moving to Malindi? Let us help you move", "We connect you to an approved mover.", "🚚", MovingForm),
-    "other": ("More settlement services", "Water refills, furniture, cleaning, repairs, security and more.", "🧰", OtherForm),
+    "house": ("Help me find a house", "Tell us what you need and we will suggest suitable houses on WhatsApp.", "🏠", HouseForm),
+    "internet": ("Get internet in your new home", "We connect you with a trusted provider that covers your area.", "📶", InternetForm),
+    "gas": ("Gas cylinder hire", "Get a gas cylinder, a cooker and delivery arranged for you.", "🔥", GasForm),
+    "items": ("Furnish your home the easy way", "Hire or buy a mattress, bed and other basics so your new place is ready from day one.", "🛏️", ItemsForm),
+    "moving": ("Moving house? We will help you move in", "We connect you with a trusted mover to carry your belongings from your old place to your new home.", "🚚", MovingForm),
+    "other": ("More settling-in services", "Water refills, furniture, cleaning, repairs, security and more.", "🧰", OtherForm),
 }
 
 def _video_ok(f):

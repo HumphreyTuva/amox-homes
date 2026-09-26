@@ -34,3 +34,4 @@ body{animation:pagein .5s ease both}@keyframes pagein{from{opacity:0}}
 .dic{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:.75rem;background:#e8f4fd;color:#1257d6}
 .dsec{display:flex;align-items:center;gap:.75rem;font-size:.7rem;font-weight:700;letter-spacing:.2em;color:#1257d6;text-transform:uppercase;margin-bottom:.15rem}.dsec:after{content:"";flex:1;height:1px;background:#cfe3f7}
 .dsum{list-style:none;cursor:pointer}.dsum::-webkit-details-marker{display:none}.chev{transition:transform .3s}details.is-open>.dsum .chev{transform:rotate(90deg)}
+.marquee:hover{animation-play-state:paused}
