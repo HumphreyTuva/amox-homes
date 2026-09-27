@@ -26,10 +26,19 @@ def _int(v):
     try: return int(v)
     except (TypeError, ValueError): return None
 
+HOME_SERVICES = [
+    ("house", "core/menu-house.webp", "Looking for a house?", "Let us help you find a home that fits your needs, budget and lifestyle."),
+    ("internet", "core/services/internet.webp", "Need internet/Wi-Fi?", "Let us connect you to reliable internet for your new home."),
+    ("gas", "core/services/gas.webp", "Need a gas cylinder or cooker?", "We\u2019ve got your kitchen covered; from buying or hiring to delivery."),
+    ("items", "core/services/items.webp", "Need a mattress or furniture?", "Set up your home with ease; buy or hire mattresses and furniture, with convenient delivery."),
+    ("moving", "core/services/moving.webp", "Moving out or into a new home?", "Let us make your move easier; from packing to transportation and settling in."),
+    ("other", "core/services/other.webp", "More services", "Water refills, cleaning, repairs, security and more."),
+]
+
 def home(request):
     items = list(Announcement.live())
     ticker = items * (-(-8 // len(items))) if items else []     # repeat short lists so the strip always fills the screen
-    return render(request, "core/home.html", {"ticker": ticker, "ticker_secs": max(20, 6 * len(ticker)), "featured": live().order_by("-featured", "-verification", "-created_at")[:6],
+    return render(request, "core/home.html", {"home_services": HOME_SERVICES, "ticker": ticker, "ticker_secs": max(20, 6 * len(ticker)), "featured": live().order_by("-featured", "-verification", "-created_at")[:6],
                                               "institutions": Institution.objects.all(), "services": list(SERVICES.items())})
 
 AMENITY_GROUPS = [("Utilities", ["wifi", "water", "electricity"]),
