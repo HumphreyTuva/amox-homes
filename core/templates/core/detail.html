@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}{% block title %}{{ p.title }}, {{ p.area }} | AMOX Homes{% endblock %}{% block desc %}{{ p.title }} in {{ p.area }}, KSh {{ p.rent }} per month.{% endblock %}
+{% extends "core/base.html" %}{% block title %}{{ p.title }}, {{ p.area }} | AMOXHomes{% endblock %}{% block desc %}{{ p.title }} in {{ p.area }}, KSh {{ p.rent }} per month.{% endblock %}
 {% block ogimage %}{% with m=p.cover %}{% if m %}{{ request.scheme }}://{{ request.get_host }}{{ m.thumb.url }}{% else %}{{ block.super }}{% endif %}{% endwith %}{% endblock %}
 {% block wa %}{% endblock %}
 {% block content %}<div x-data="{src:null}" @keydown.escape.window="src=null" class="max-w-6xl mx-auto px-4 mt-6 grid gap-8 md:grid-cols-[1.6fr_1fr]"><div>

@@ -1,4 +1,4 @@
-# AMOX Homes (Django)
+# AMOXHomes (Django)
 Django + DRF, server-rendered templates, Tailwind (CDN in dev) + Alpine.js, SQLite dev / PostgreSQL prod.
 
 ## Run locally

@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}{% block title %}{% if inst %}Houses near {{ inst.name }}{% else %}Houses & Bedsitters in Malindi{% endif %} | AMOX Homes{% endblock %}
+{% extends "core/base.html" %}{% block title %}{% if inst %}Houses near {{ inst.name }}{% else %}Houses & Bedsitters in Malindi{% endif %} | AMOXHomes{% endblock %}
 {% block desc %}{% if inst %}Rental houses and student accommodation near {{ inst.name }}, closest first.{% else %}Browse bedsitters, single rooms and apartments in Malindi and Kilifi.{% endif %}{% endblock %}
 {% block content %}<section class="bg-mist py-8"><div class="max-w-6xl mx-auto px-4"><h1 class="text-3xl font-extrabold text-navy">{% if inst %}Houses near {{ inst.name }}{% else %}Find a house{% endif %}</h1><p class="text-slate-600">{{ total }} house{{ total|pluralize }} found{% if inst %}, closest first{% endif %}.</p></div></section>
 <div class="max-w-6xl mx-auto px-4 mt-6"><form method="get" class="bg-white border rounded-2xl p-4"><div class="grid grid-cols-2 gap-3 md:grid-cols-6 items-end">

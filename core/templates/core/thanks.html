@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}{% block title %}Thank you | AMOX Homes{% endblock %}
+{% extends "core/base.html" %}{% block title %}Thank you | AMOXHomes{% endblock %}
 {% block content %}<section class="max-w-xl mx-auto px-4 py-16 text-center"><div class="text-6xl">✅</div>
 {% if lead %}<h1 class="text-3xl font-extrabold text-navy mt-3">Request received</h1><p class="mt-2 text-slate-600">Your reference is <b>#{{ lead.pk }}</b>. Send it on WhatsApp so we can reply fast.</p>
 <a href="{{ lead.wa_link }}" target="_blank" rel="noopener" class="inline-block mt-6 bg-green-600 text-white font-semibold rounded-full px-6 py-3">Send on WhatsApp</a>

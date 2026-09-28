@@ -88,9 +88,9 @@ def property_detail(request, slug):
         "inside": [m for m in media if m.section == "inside" and m.kind == "photo"],
         "around": [m for m in media if m.section == "around" and m.kind == "photo"],
         "videos": [m for m in media if m.kind == "video"],
-        "p_wa": wa_link(f"Hi AMOX Homes, I'm interested in {p.title} in {p.area}: {request.build_absolute_uri()}"),
+        "p_wa": wa_link(f"Hi AMOXHomes, I'm interested in {p.title} in {p.area}: {request.build_absolute_uri()}"),
         "share": f"{p.title} in {p.area}, KSh {int(p.rent):,}/month: {request.build_absolute_uri()}",
-        "report_wa": wa_link(f"Hi AMOX Homes, I want to report this listing: {request.build_absolute_uri()}")})
+        "report_wa": wa_link(f"Hi AMOXHomes, I want to report this listing: {request.build_absolute_uri()}")})
 
 def legal(request, page):
     return render(request, "core/legal.html", {"page": page})
@@ -120,7 +120,7 @@ def request_service(request, kind):
     if request.method == "POST" and form.is_valid():
         return _save_lead(request, kind, form)
     return render(request, "core/form_page.html", {"title": title, "intro": intro, "form": form, "btn": "Send request",
-                                                  "wa_alt": wa_link("Hello AMOX Homes, I need help finding a house. My institution or workplace is ___, my budget is ___ and I would like to live in ___." if kind == "house" else f"Hello AMOX Homes, I need help with: {title}."),
+                                                  "wa_alt": wa_link("Hello AMOXHomes, I need help finding a house. My institution or workplace is ___, my budget is ___ and I would like to live in ___." if kind == "house" else f"Hello AMOXHomes, I need help with: {title}."),
                                                   "partners": ServiceProvider.objects.filter(category=kind, status="approved")})
 
 def services(request): return render(request, "core/services.html", {"services": list(SERVICES.items())})
@@ -153,7 +153,7 @@ def providers(request):
         pv = form.save(); notify(f"New provider: {pv.business}", f"{pv.get_category_display()}, {pv.phone}\nApprove it in the admin.")
         request.session["last"] = ["provider", pv.pk]
         return redirect("thanks")
-    return render(request, "core/form_page.html", {"title": "Register as a service provider", "intro": "Tenants request a connection through AMOX Homes and we refer them to approved partners.", "form": form, "btn": "Register my business"})
+    return render(request, "core/form_page.html", {"title": "Register as a service provider", "intro": "Tenants request a connection through AMOXHomes and we refer them to approved partners.", "form": form, "btn": "Register my business"})
 
 def about(request): return render(request, "core/about.html")
 

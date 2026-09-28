@@ -5,7 +5,7 @@ from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from core.sitemaps import SITEMAPS
 
-admin.site.site_header = "AMOX Homes Admin"
+admin.site.site_header = "AMOXHomes Admin"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("core.api")),

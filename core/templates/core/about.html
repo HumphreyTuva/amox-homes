@@ -1,6 +1,40 @@
-{% extends "core/base.html" %}{% block title %}About Us | AMOX Homes{% endblock %}
-{% block content %}<section class="bg-mist py-10"><div class="max-w-6xl mx-auto px-4"><h1 class="text-3xl font-extrabold text-navy">About AMOX Homes</h1><p class="text-slate-600">A division of AMOX Solutions Limited.</p></div></section>
-<div class="max-w-6xl mx-auto px-4 mt-8 grid gap-4 md:grid-cols-2"><div class="bg-white border rounded-2xl p-5"><h2 class="font-bold text-navy">Vision</h2><p>To become Africa's trusted platform for housing connections and settlement support for students and professionals relocating to new places.</p></div>
-<div class="bg-white border rounded-2xl p-5"><h2 class="font-bold text-navy">Mission</h2><p>To make finding a home and settling into a new place simple and convenient.</p></div></div>
-<div class="max-w-6xl mx-auto px-4 mt-8"><div class="bg-sand border-l-4 border-coral rounded-xl p-5"><b class="text-navy">What we do.</b> We connect students and professionals to verified houses, landlords and the services that make moving easy: internet, gas, mattresses and movers.</div>
-<div class="flex flex-wrap gap-3 mt-6"><a href="{% url 'houses' %}" class="bg-brand text-white font-semibold rounded-full px-6 py-3">Find a House</a><a href="{% url 'contact' %}" class="border-2 border-navy text-navy font-semibold rounded-full px-6 py-3">Contact us</a></div></div>{% endblock %}
+{% extends "core/base.html" %}
+{% block title %}About Us | AMOXHomes{% endblock %}
+
+{% block content %}
+<section class="bg-mist py-10">
+  <div class="max-w-6xl mx-auto px-4">
+    <h1 class="text-3xl font-extrabold text-navy">About Us</h1>
+    <p class="text-slate-600">A division of AMOX Solutions Limited.</p>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-4 mt-8">
+  <div class="bg-sand border-l-4 border-coral rounded-xl p-5">
+    <p class="text-slate-700 mb-3">
+      AMOXHomes is a division of AMOX Solutions Limited, established to address challenges surrounding housing and settlement. Our initial focus is on students and professionals, particularly individuals coming to Malindi for university, college, attachment, internship, employment, business or other opportunities.
+    </p>
+    <p class="text-slate-700">
+      AMOXHomes works with landlords, property owners, internet providers, household item providers, moving services and other relevant businesses, creating an interconnected housing ecosystem.
+    </p>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 mt-8 grid gap-4 md:grid-cols-2">
+  <div class="bg-white border rounded-2xl p-5">
+    <h2 class="font-bold text-navy">Vision</h2>
+    <p>To become Africa's trusted platform for housing connections and settlement support for students and professionals relocating to new places.</p>
+  </div>
+  <div class="bg-white border rounded-2xl p-5">
+    <h2 class="font-bold text-navy">Mission</h2>
+    <p>To make finding a home and settling into a new place simple and convenient.</p>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 mt-8">
+  <div class="flex flex-wrap gap-3 mt-6">
+    <a href="{% url 'houses' %}" class="bg-brand text-white font-semibold rounded-full px-6 py-3">Find a House</a>
+    <a href="{% url 'contact' %}" class="border-2 border-navy text-navy font-semibold rounded-full px-6 py-3">Contact us</a>
+  </div>
+</div>
+{% endblock %}

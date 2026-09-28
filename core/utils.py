@@ -23,6 +23,6 @@ def notify(subject, body):
     """Email the AMOX team. Never breaks the page if email is not configured."""
     from django.core.mail import send_mail
     try:
-        send_mail(f"[AMOX Homes] {subject}", body, settings.DEFAULT_FROM_EMAIL, [settings.EMAIL], fail_silently=True)
+        send_mail(f"[AMOXHomes] {subject}", body, settings.DEFAULT_FROM_EMAIL, [settings.EMAIL], fail_silently=True)
     except Exception:
         pass
