@@ -1,0 +1,9 @@
+{% extends "core/base.html" %}{% block title %}{{ p.title }} | AMOXHomes{% endblock %}{% block desc %}{{ p.summary }}{% endblock %}{% block ogtitle %}{{ p.title }}{% endblock %}
+{% block ogimage %}{% if p.cover %}{{ request.scheme }}://{{ request.get_host }}{{ p.cover.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block content %}<article class="max-w-3xl mx-auto px-4 mt-8"><a href="{% url 'blog' %}" class="text-sm font-semibold text-brand">← All articles</a>
+<p class="mt-4"><span class="rounded bg-mist px-2 py-0.5 text-xs font-bold text-navy">{{ p.get_category_display }}</span> <span class="ml-1 text-xs text-slate-400">{{ p.published_at|date:"j M Y" }} · {{ p.read_minutes }} min read</span></p>
+<h1 class="mt-2 text-3xl font-extrabold leading-tight text-navy">{{ p.title }}</h1><p class="mt-2 text-lg text-slate-600">{{ p.summary }}</p>
+{% if p.cover %}<img src="{{ p.cover.url }}" alt="" width="1200" height="675" class="mt-5 w-full rounded-2xl object-cover">{% endif %}
+<div class="mt-6 space-y-4 break-words text-[17px] leading-relaxed text-slate-700">{{ p.body|linebreaks }}</div>
+<div class="mt-8 flex flex-wrap items-center gap-3 border-t pt-5"><a href="https://wa.me/?text={{ share|urlencode }}" target="_blank" rel="noopener" class="rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white">Share on WhatsApp</a><a href="{% url 'houses' %}" class="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white">Find a House</a></div></article>
+{% if related %}<section class="max-w-6xl mx-auto px-4 mt-12"><h2 class="text-xl font-extrabold text-navy">More to read</h2><div class="mt-4 grid gap-4 md:grid-cols-3">{% for p in related %}<div class="min-w-0">{% include "core/_post_card.html" %}</div>{% endfor %}</div></section>{% endif %}{% endblock %}

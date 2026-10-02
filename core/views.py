@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import *
-from .models import AMENITIES, HOUSE_TYPES, Announcement, Institution, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
+from .models import AMENITIES, HOUSE_TYPES, Announcement, Institution, Post, Review, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
 
 def _guard(request):
     """Honeypot + simple per-IP limit for public forms."""
@@ -38,7 +38,7 @@ HOME_SERVICES = [
 def home(request):
     items = list(Announcement.live())
     ticker = items * (-(-8 // len(items))) if items else []     # repeat short lists so the strip always fills the screen
-    return render(request, "core/home.html", {"home_services": HOME_SERVICES, "ticker": ticker, "ticker_secs": max(20, 6 * len(ticker)), "featured": live().order_by("-featured", "-verification", "-created_at")[:6],
+    return render(request, "core/home.html", {"home_reviews": list(Review.objects.filter(status="approved")[:6]), "home_posts": list(Post.live()[:3]), "home_services": HOME_SERVICES, "ticker": ticker, "ticker_secs": max(20, 6 * len(ticker)), "featured": live().order_by("-featured", "-verification", "-created_at")[:6],
                                               "institutions": Institution.objects.all(), "services": list(SERVICES.items())})
 
 AMENITY_GROUPS = [("Utilities", ["wifi", "water", "electricity"]),

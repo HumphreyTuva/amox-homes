@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views as v, console as c
+from . import views as v, console as c, content as ct
 from django.views.generic import RedirectView
 urlpatterns = [
     path("", v.home, name="home"),
@@ -14,6 +14,9 @@ urlpatterns = [
     path("about/", v.about, name="about"),
     path("contact/", v.contact, name="contact"),
     path("thanks/", v.thanks, name="thanks"),
+    path("reviews/", ct.reviews, name="reviews"),
+    path("blog/", ct.blog_list, name="blog"),
+    path("blog/<slug:slug>/", ct.blog_detail, name="blog_detail"),
     path("privacy/", v.legal, {"page": "privacy"}, name="privacy"),
     path("terms/", v.legal, {"page": "terms"}, name="terms"),
     path("dashboard/", RedirectView.as_view(pattern_name="console")),
@@ -26,6 +29,12 @@ urlpatterns = [
     path("console/houses/<int:pk>/", c.prop_action, name="console_prop_action"),
     path("console/announcements/", c.announcements, name="console_announcements"),
     path("console/announcements/<int:pk>/", c.announcement_action, name="console_announcement_action"),
+    path("console/reviews/", c.reviews, name="console_reviews"),
+    path("console/reviews/<int:pk>/", c.review_action, name="console_review_action"),
+    path("console/blog/", c.blog, name="console_blog"),
+    path("console/blog/new/", c.blog_edit, name="console_blog_new"),
+    path("console/blog/<int:pk>/edit/", c.blog_edit, name="console_blog_edit"),
+    path("console/blog/<int:pk>/", c.blog_action, name="console_blog_action"),
     path("console/partners/", c.providers, name="console_providers"),
     path("console/partners/<int:pk>/", c.provider_action, name="console_provider_action"),
 ]

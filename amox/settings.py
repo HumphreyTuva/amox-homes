@@ -7,7 +7,14 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 # Safe by default: DEBUG is on only for local `manage.py` commands. The live web server (gunicorn etc.)
 # runs with DEBUG off and refuses to start without SECRET_KEY and ALLOWED_HOSTS.
-DEBUG = os.getenv("DEBUG", "1" if os.path.basename(sys.argv[0]) == "manage.py" else "0") == "1"
+_env_debug = os.getenv("DEBUG")
+if _env_debug is not None and _env_debug.lower() in ("1", "true", "yes", "on"):
+    DEBUG = True
+elif _env_debug is not None and _env_debug.lower() in ("0", "false", "no", "off"):
+    DEBUG = False
+else:
+    DEBUG = os.path.basename(sys.argv[0]) == "manage.py"
+
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me" if DEBUG else "")
 ALLOWED_HOSTS = [h for h in os.getenv("ALLOWED_HOSTS", "*" if DEBUG else "").split(",") if h]
 if not DEBUG and not (SECRET_KEY and ALLOWED_HOSTS):

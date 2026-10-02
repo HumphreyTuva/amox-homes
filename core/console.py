@@ -9,7 +9,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
-from .models import Announcement, Lead, Property, SearchLog, ServiceProvider, _safe_link
+from .forms import PostForm
+from .models import SERVICE_CHOICES, Post, Review, Announcement, Lead, Property, SearchLog, ServiceProvider, _safe_link
 
 PROP_ACTIONS = {"approve": dict(status="approved"), "reject": dict(status="rejected"), "verify": dict(verification="verified", verified_on=date.today()),
                 "unverify": dict(verification="landlord"), "feature": dict(featured=True), "unfeature": dict(featured=False),
@@ -28,6 +29,8 @@ def _ctx(active, **extra):
                    ServiceProvider.objects.filter(status="pending").count())
     return {"active": active, "nav": [("home", "console", "Overview", 0, "grid"), ("leads", "console_leads", "Leads", nl, "inbox"),
             ("props", "console_props", "Houses", npr, "home"), ("providers", "console_providers", "Partners", nv, "store"),
+            ("reviews", "console_reviews", "Reviews", Review.objects.filter(status="pending").count(), "star"),
+            ("blog", "console_blog", "Blog", 0, "news"),
             ("announcements", "console_announcements", "Announcements", 0, "mega")], **extra}
 
 def _back(request, default):
@@ -165,3 +168,50 @@ def announcement_action(request, pk):
         a.link = _safe_link(request.POST.get("link")); a.expires_on = _date(request.POST.get("expires_on")); a.order = _num(request.POST.get("order")); a.save()
         messages.success(request, "Announcement saved.")
     return redirect("console_announcements")
+
+
+REVIEW_ACTIONS = {"approve": dict(status="approved"), "reject": dict(status="rejected"), "feature": dict(featured=True), "unfeature": dict(featured=False)}
+
+@staff
+def reviews(request):
+    if request.method == "POST":      # add a testimonial yourself (e.g. one a client sent on WhatsApp)
+        p = request.POST; name, text = p.get("name", "").strip()[:60], p.get("text", "").strip()[:500]
+        try: rating = min(5, max(1, int(p.get("rating", 5))))
+        except ValueError: rating = 5
+        if name and text:
+            Review.objects.create(name=name, role=p.get("role", "").strip()[:80], service=p.get("service") if p.get("service") in dict(SERVICE_CHOICES) else "other",
+                                  rating=rating, text=text, status="approved"); messages.success(request, "Review added and published.")
+        return redirect("console_reviews")
+    st = request.GET.get("status", "pending"); qs = Review.objects.all()
+    if st in dict(Review.STATUS): qs = qs.filter(status=st)
+    counts = {r["status"]: r["n"] for r in Review.objects.values("status").annotate(n=Count("id"))}
+    return render(request, "core/console/reviews.html", _ctx("reviews", rows=qs[:100], st=st, services=SERVICE_CHOICES,
+                  tabs=[(k, l, counts.get(k, 0)) for k, l in Review.STATUS] + [("all", "All", sum(counts.values()))]))
+
+@staff
+@require_POST
+def review_action(request, pk):
+    act = request.POST.get("action")
+    if act == "delete": Review.objects.filter(pk=pk).delete(); messages.success(request, "Review deleted.")
+    elif act in REVIEW_ACTIONS: Review.objects.filter(pk=pk).update(**REVIEW_ACTIONS[act]); messages.success(request, "Done.")
+    return _back(request, "console_reviews")
+
+@staff
+def blog(request):
+    return render(request, "core/console/blog.html", _ctx("blog", rows=Post.objects.all()))
+
+@staff
+def blog_edit(request, pk=None):
+    post = get_object_or_404(Post, pk=pk) if pk else None
+    form = PostForm(request.POST or None, request.FILES or None, instance=post)
+    if request.method == "POST" and form.is_valid():
+        form.save(); messages.success(request, "Post saved."); return redirect("console_blog")
+    return render(request, "core/console/blog_form.html", _ctx("blog", form=form, post=post))
+
+@staff
+@require_POST
+def blog_action(request, pk):
+    p = get_object_or_404(Post, pk=pk); act = request.POST.get("action")
+    if act == "delete": p.delete(); messages.success(request, "Post deleted.")
+    elif act == "toggle": p.is_published = not p.is_published; p.save(); messages.success(request, "Published." if p.is_published else "Moved back to drafts.")
+    return redirect("console_blog")

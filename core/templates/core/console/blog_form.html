@@ -1,0 +1,6 @@
+{% extends "core/console/base.html" %}{% block title %}{% if post %}Edit post{% else %}New post{% endif %}{% endblock %}{% block content %}
+<a href="{% url 'console_blog' %}" class="text-sm font-semibold text-brand">← Back to posts</a><h1 class="mt-2 text-2xl font-extrabold text-navy">{% if post %}Edit post{% else %}New post{% endif %}</h1>
+<form method="post" enctype="multipart/form-data" class="mt-4 grid max-w-3xl gap-4 rounded-2xl bg-white p-4 shadow-sm sm:p-6">{% csrf_token %}{% if form.errors %}<p class="rounded-lg bg-red-50 p-3 text-sm text-red-700" role="alert">Please fix the highlighted fields.</p>{% endif %}
+{% for f in form %}{% if f.field.widget.input_type == 'checkbox' %}<label class="flex items-center gap-2 text-sm font-semibold text-slate-700">{{ f }}<span>{{ f.label }}</span></label>{% else %}{% include "core/_field.html" %}{% endif %}{% endfor %}
+{% if post and post.cover %}<p class="text-xs text-slate-500">Current cover photo is kept unless you choose a new one.</p>{% endif %}
+<div class="flex flex-wrap gap-3"><button class="rounded-full bg-brand px-6 py-2.5 font-semibold text-white">Save post</button><a href="{% url 'console_blog' %}" class="rounded-full border-2 border-navy px-6 py-2.5 font-semibold text-navy">Cancel</a></div></form>{% endblock %}

@@ -106,3 +106,14 @@ class ProviderForm(Styled, forms.ModelForm):
     class Meta:
         model = ServiceProvider
         fields = ["name", "business", "category", "phone", "email", "coverage", "package", "speed", "price", "install_fee", "details"]
+
+
+class PostForm(Styled, forms.ModelForm):
+    class Meta:
+        from .models import Post as _P
+        model = _P
+        fields = ["title", "category", "summary", "body", "cover", "is_published"]
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.fields["body"].widget.attrs["rows"] = 14; self.fields["summary"].widget.attrs["rows"] = 2
+        self.fields["cover"].label = "Cover photo (optional)"

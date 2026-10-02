@@ -195,3 +195,54 @@ class Announcement(models.Model):
         from django.utils import timezone
         today = timezone.localdate()
         return cls.objects.filter(is_active=True).filter(models.Q(expires_on__isnull=True) | models.Q(expires_on__gte=today))
+
+
+SERVICE_CHOICES = [("house", "Finding a house"), ("internet", "Internet"), ("gas", "Gas cylinder"),
+                   ("items", "Mattress / household items"), ("moving", "Moving help"), ("other", "Other")]
+
+class Review(models.Model):
+    STATUS = [("pending", "Pending"), ("approved", "Approved"), ("rejected", "Rejected")]
+    name = models.CharField(max_length=60)
+    role = models.CharField("Who are you?", max_length=80, blank=True, help_text="e.g. MKU student, Teacher, Landlord")
+    service = models.CharField(max_length=8, choices=SERVICE_CHOICES, default="house")
+    rating = models.PositiveSmallIntegerField(default=5)
+    text = models.TextField(max_length=500)
+    status = models.CharField(max_length=8, choices=STATUS, default="pending")
+    featured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta: ordering = ["-featured", "-created_at"]
+    def __str__(self): return f"{self.name} ({self.rating}/5)"
+    @property
+    def stars(self): return [i < self.rating for i in range(5)]
+
+
+class Post(models.Model):
+    CATEGORIES = [("news", "News"), ("tips", "Tips"), ("guide", "Guides"), ("area", "Around Malindi")]
+    title = models.CharField(max_length=150)
+    slug = models.SlugField(max_length=170, unique=True, blank=True, editable=False)
+    category = models.CharField(max_length=5, choices=CATEGORIES, default="news")
+    summary = models.CharField(max_length=220, help_text="One or two sentences shown on the blog list")
+    body = models.TextField(help_text="Leave a blank line between paragraphs")
+    cover = models.ImageField(upload_to="blog/%Y/%m/", blank=True)
+    is_published = models.BooleanField("Published", default=False)
+    published_at = models.DateTimeField(null=True, blank=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    class Meta: ordering = ["-published_at", "-created_at"]
+    def __str__(self): return self.title
+    def get_absolute_url(self): return reverse("blog_detail", args=[self.slug])
+    @property
+    def read_minutes(self): return max(1, round(len(self.body.split()) / 200))
+    @classmethod
+    def live(cls): return cls.objects.filter(is_published=True)
+    def save(self, *a, **k):
+        from django.utils import timezone
+        if not self.slug:
+            base = slugify(self.title)[:60] or "post"; slug, n = base, 2
+            while Post.objects.filter(slug=slug).exclude(pk=self.pk).exists(): slug, n = f"{base}-{n}", n + 1
+            self.slug = slug
+        if self.is_published and not self.published_at: self.published_at = timezone.now()
+        if self.cover and not self.cover._committed:       # compress new cover images (small for low-data users)
+            raw = self.cover.read(); self.cover.seek(0)
+            self.cover.save(webp_name(self.cover.name), shrink(raw, 1400), save=False)
+        super().save(*a, **k)
