@@ -42,10 +42,25 @@ class InternetForm(LeadForm):
     more = ("budget",)
 
 class GasForm(LeadForm):
-    location = forms.CharField()
+    option = forms.ChoiceField(label="What would you like?", initial="Buy", widget=forms.RadioSelect,
+                               choices=[("Buy", "Buy a cylinder"), ("Hire", "Hire a cylinder")])
     cylinder_size = forms.ChoiceField(choices=[("6 kg", "6 kg"), ("13 kg", "13 kg")])
-    duration = forms.ChoiceField(choices=[(d, d) for d in ["1 month", "3 months", "Semester", "Longer"]])
+    duration = forms.ChoiceField(required=False, label="How long do you need it?",
+                                 choices=[("", "Choose...")] + [(d, d) for d in ["1 month", "3 months", "Semester", "Longer"]])
+    location = forms.CharField()
     delivery = forms.ChoiceField(choices=[("Deliver to me", "Deliver to me"), ("I will pick up", "I will pick up")])
+    extras = forms.ChoiceField(required=False, label="Do you also need a cooker or accessories?",
+                               choices=[("", "No, the cylinder only"), ("Cooker", "A cooker"), ("Hose and regulator", "Hose and regulator"),
+                                        ("Cooker, hose and regulator", "Cooker, hose and regulator")])
+    more = ("extras",)
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.fields["duration"].widget.attrs["data-showif"] = "option:Hire"     # only asked when hiring
+    def clean(self):
+        cd = super().clean()
+        if cd.get("option") == "Hire" and not cd.get("duration"): self.add_error("duration", "Please choose how long you need it.")
+        if cd.get("option") != "Hire": cd["duration"] = ""
+        return cd
 
 class ItemsForm(LeadForm):
     location = forms.CharField()
@@ -75,9 +90,9 @@ class InquiryForm(LeadForm):
 
 # kind -> (title, intro, icon, form)
 SERVICES = {
-    "house": ("Help me find a house", "Tell us what you need and we will suggest suitable houses on WhatsApp.", "🏠", HouseForm),
+    "house": ("Help me find a house", "Tell us what you need and we will find suitable houses for you.", "🏠", HouseForm),
     "internet": ("Get internet in your new home", "We connect you with a trusted provider that covers your area.", "📶", InternetForm),
-    "gas": ("Gas cylinder hire", "Get a gas cylinder, a cooker and delivery arranged for you.", "🔥", GasForm),
+    "gas": ("Buy or hire a gas cylinder", "Choose to buy or hire, and we will arrange delivery, plus a cooker if you need one.", "🔥", GasForm),
     "items": ("Furnish your home the easy way", "Hire or buy a mattress, bed and other basics so your new place is ready from day one.", "🛏️", ItemsForm),
     "moving": ("Moving house? We will help you move in", "We connect you with a trusted mover to carry your belongings from your old place to your new home.", "🚚", MovingForm),
     "other": ("More settling-in services", "Water refills, furniture, cleaning, repairs, security and more.", "🧰", OtherForm),
@@ -95,6 +110,10 @@ class ListingForm(Styled, forms.ModelForm):
     photo2 = forms.ImageField(required=False, label="Photo 2")
     around1 = forms.ImageField(required=False, label="Photo of the surroundings (street, walkway)")
     video1 = forms.FileField(required=False, label="Short video of the house (optional)", validators=[_video_ok])
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.fields["area"].widget.attrs["list"] = "area-options"
+        self.fields["area"].help_text = "Pick from the list or type your own"
     class Meta:
         model = Property
         fields = ["owner_name", "owner_phone", "owner_email", "title", "area", "estate", "house_type", "rent", "deposit",

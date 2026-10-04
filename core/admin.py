@@ -1,6 +1,6 @@
 from datetime import date
 from django.contrib import admin
-from .models import Institution, Property, PropertyMedia, Distance, Lead, ServiceProvider, SearchLog, Announcement, Review, Post
+from .models import Institution, Property, PropertyMedia, Distance, Lead, ServiceProvider, SearchLog, Announcement, Review, Post, Area
 
 class MediaInline(admin.TabularInline): model = PropertyMedia; extra = 1
 class DistInline(admin.TabularInline): model = Distance; extra = 1
@@ -71,3 +71,9 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ("title", "category", "is_published", "published_at")
     list_filter = ("is_published", "category")
     search_fields = ("title", "summary")
+
+@admin.register(Area)
+class AreaAdmin(admin.ModelAdmin):
+    list_display = ("name", "is_active", "order")
+    list_editable = ("is_active", "order")
+    search_fields = ("name",)

@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import *
-from .models import AMENITIES, HOUSE_TYPES, Announcement, Institution, Post, Review, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
+from .models import AMENITIES, HOUSE_TYPES, Announcement, Area, Institution, Post, Review, Lead, Property, PropertyMedia, SearchLog, ServiceProvider
 
 def _guard(request):
     """Honeypot + simple per-IP limit for public forms."""
@@ -53,9 +53,10 @@ def property_list(request, institution=None):
         rest = g.copy(); rest.pop("near", None); rest.pop("page", None)
         return redirect((reverse("houses_near", args=[near]) if near else reverse("houses")) + (f"?{rest.urlencode()}" if rest else ""))
     inst = get_object_or_404(Institution, slug=institution) if institution else None
-    term = (g.get("q") or (inst.name if inst else "")).strip().lower()[:80]
+    term = (g.get("q") or g.get("area") or (inst.name if inst else "")).strip().lower()[:80]
     if term and not g.get("page"): SearchLog.objects.create(term=term)
     if g.get("q"): qs = qs.filter(Q(title__icontains=g["q"]) | Q(area__icontains=g["q"]) | Q(estate__icontains=g["q"]))
+    if g.get("area"): qs = qs.filter(Q(area__icontains=g["area"]) | Q(estate__icontains=g["area"]))
     if g.get("type"): qs = qs.filter(house_type=g["type"])
     if _int(g.get("min")) is not None: qs = qs.filter(rent__gte=_int(g["min"]))
     if _int(g.get("max")) is not None: qs = qs.filter(rent__lte=_int(g["max"]))
@@ -69,12 +70,14 @@ def property_list(request, institution=None):
     page = Paginator(qs, 12).get_page(g.get("page"))
     params = g.copy(); params.pop("page", None)
     labels = dict(AMENITIES); used = {k for _, ks in AMENITY_GROUPS for k in ks}
-    groups = [(t, [(k, labels[k], bool(g.get(k))) for k in ks if k in labels]) for t, ks in AMENITY_GROUPS]
+    groups = [[t, [(k, labels[k], bool(g.get(k))) for k in ks if k in labels]] for t, ks in AMENITY_GROUPS]
     extra = [(k, l, bool(g.get(k))) for k, l in AMENITIES if k not in used]
-    if extra: groups.append(("Other", extra))
+    if extra: groups.append(["Other", extra])
+    for gr in groups: gr.append(sum(1 for _, _, on in gr[1] if on))        # how many chips are selected in each group
+    if g.get("verified"): groups[-1][2] += 1                              # the Verified chip sits in the last group
     n_active = sum(1 for k in labels if g.get(k)) + (1 if g.get("verified") else 0)
     return render(request, "core/list.html", {"page": page, "inst": inst, "types": HOUSE_TYPES, "amenities": AMENITIES,
-                                              "qs": params.urlencode(), "g": g, "groups": groups, "n_active": n_active, "institutions": Institution.objects.all(), "total": page.paginator.count})
+                                              "qs": params.urlencode(), "g": g, "groups": groups, "n_active": n_active, "areas": Area.objects.filter(is_active=True), "institutions": Institution.objects.all(), "total": page.paginator.count})
 
 def property_detail(request, slug):
     p = get_object_or_404(Property, slug=slug, status="approved")
@@ -120,7 +123,6 @@ def request_service(request, kind):
     if request.method == "POST" and form.is_valid():
         return _save_lead(request, kind, form)
     return render(request, "core/form_page.html", {"title": title, "intro": intro, "form": form, "btn": "Send request",
-                                                  "wa_alt": wa_link("Hello AMOXHomes, I need help finding a house. My institution or workplace is ___, my budget is ___ and I would like to live in ___." if kind == "house" else f"Hello AMOXHomes, I need help with: {title}."),
                                                   "partners": ServiceProvider.objects.filter(category=kind, status="approved")})
 
 def services(request): return render(request, "core/services.html", {"services": list(SERVICES.items())})
@@ -144,7 +146,7 @@ def list_property(request):
         notify(f"New listing: {p.title}", f"{p.area}, KSh {p.rent}\n{p.owner_name} {p.owner_phone}\nReview it in the admin.")
         request.session["last"] = ["listed", p.pk]
         return redirect("thanks")
-    return render(request, "core/form_page.html", {"title": "List your property", "intro": "Basic listings are free and include 2 photos. We review every listing before it goes live. Ask us about Pro listing and verification.", "form": form, "btn": "Submit listing"})
+    return render(request, "core/form_page.html", {"title": "List your property", "intro": "Basic listings are free and include 2 photos. We review every listing before it goes live. Ask us about Pro listing and verification.", "form": form, "btn": "Submit listing", "area_options": Area.objects.filter(is_active=True)})
 
 def providers(request):
     form = ProviderForm(request.POST or None)

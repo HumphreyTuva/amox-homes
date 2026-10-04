@@ -4,13 +4,13 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.cache import cache
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 from .forms import PostForm
-from .models import SERVICE_CHOICES, Post, Review, Announcement, Lead, Property, SearchLog, ServiceProvider, _safe_link
+from .models import Area, SERVICE_CHOICES, Post, Review, Announcement, Lead, Property, SearchLog, ServiceProvider, _safe_link
 
 PROP_ACTIONS = {"approve": dict(status="approved"), "reject": dict(status="rejected"), "verify": dict(verification="verified", verified_on=date.today()),
                 "unverify": dict(verification="landlord"), "feature": dict(featured=True), "unfeature": dict(featured=False),
@@ -28,7 +28,7 @@ def _ctx(active, **extra):
     nl, npr, nv = (Lead.objects.filter(status="new").count(), Property.objects.filter(status="pending").count(),
                    ServiceProvider.objects.filter(status="pending").count())
     return {"active": active, "nav": [("home", "console", "Overview", 0, "grid"), ("leads", "console_leads", "Leads", nl, "inbox"),
-            ("props", "console_props", "Houses", npr, "home"), ("providers", "console_providers", "Partners", nv, "store"),
+            ("props", "console_props", "Houses", npr, "home"), ("areas", "console_areas", "Areas", 0, "pin"), ("providers", "console_providers", "Partners", nv, "store"),
             ("reviews", "console_reviews", "Reviews", Review.objects.filter(status="pending").count(), "star"),
             ("blog", "console_blog", "Blog", 0, "news"),
             ("announcements", "console_announcements", "Announcements", 0, "mega")], **extra}
@@ -215,3 +215,33 @@ def blog_action(request, pk):
     if act == "delete": p.delete(); messages.success(request, "Post deleted.")
     elif act == "toggle": p.is_published = not p.is_published; p.save(); messages.success(request, "Published." if p.is_published else "Moved back to drafts.")
     return redirect("console_blog")
+
+
+def _clean_name(v): return " ".join((v or "").split())[:80]
+
+@staff
+def areas(request):
+    if request.method == "POST":
+        name = _clean_name(request.POST.get("name"))
+        if not name: pass
+        elif Area.objects.filter(name__iexact=name).exists(): messages.success(request, f"\u201c{name}\u201d is already in the list.")
+        else: Area.objects.create(name=name, order=_num(request.POST.get("order"))); messages.success(request, f"\u201c{name}\u201d added. Visitors can now pick it in the house search.")
+        return redirect("console_areas")
+    rows = list(Area.objects.all()); live = Property.objects.filter(status="approved", is_available=True)
+    for a in rows: a.houses = live.filter(Q(area__icontains=a.name) | Q(estate__icontains=a.name)).count()
+    have = {a.name.lower() for a in rows}
+    used = Property.objects.filter(status="approved").exclude(area="").values("area").annotate(n=Count("id")).order_by("-n")
+    sug = [r for r in used if r["area"].strip().lower() not in have][:12]
+    return render(request, "core/console/areas.html", _ctx("areas", rows=rows, suggestions=sug))
+
+@staff
+@require_POST
+def area_action(request, pk):
+    a = get_object_or_404(Area, pk=pk); act = request.POST.get("action")
+    if act == "delete": a.delete(); messages.success(request, "Area removed from the search options.")
+    elif act == "toggle": a.is_active = not a.is_active; a.save(); messages.success(request, "Now shown in the search." if a.is_active else "Hidden from the search.")
+    elif act == "save":
+        name = _clean_name(request.POST.get("name"))
+        if name and not Area.objects.filter(name__iexact=name).exclude(pk=a.pk).exists(): a.name = name
+        a.order = _num(request.POST.get("order")); a.save(); messages.success(request, "Area saved.")
+    return redirect("console_areas")

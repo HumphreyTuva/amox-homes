@@ -12,4 +12,6 @@ if(!err)els.forEach(function(e){var v=p[e.dataset.pf];if(!v)return;if(e.tagName=
 if(n){bar.classList.remove('hidden');bar.classList.add('flex')}
 f.addEventListener('submit',function(){els.forEach(function(e){if(e.value)p[e.dataset.pf]=e.value});try{localStorage.setItem(K,JSON.stringify(p))}catch(x){}});
 f.querySelector('[data-pf-clear]').onclick=function(){try{localStorage.removeItem(K)}catch(x){}els.forEach(function(e){if(e.tagName!=='SELECT')e.value=''});bar.classList.add('hidden');bar.classList.remove('flex')};
+f.querySelectorAll('[data-showif]').forEach(function(el){var q=el.dataset.showif.split(':'),box=el.closest('label,fieldset')||el;function upd(){var r=f.querySelector('input[name='+q[0]+']:checked')||f.querySelector('select[name='+q[0]+']');var on=!!r&&r.value===q[1];box.style.display=on?'':'none';el.disabled=!on}
+f.querySelectorAll('[name='+q[0]+']').forEach(function(i){i.addEventListener('change',upd)});upd()});
 })(document.currentScript)</script>

@@ -246,3 +246,12 @@ class Post(models.Model):
             raw = self.cover.read(); self.cover.seek(0)
             self.cover.save(webp_name(self.cover.name), shrink(raw, 1400), save=False)
         super().save(*a, **k)
+
+
+class Area(models.Model):
+    """Admin-controlled list of areas shown as options in the house search."""
+    name = models.CharField(max_length=80, unique=True)
+    is_active = models.BooleanField("Show in search", default=True)
+    order = models.PositiveIntegerField(default=0, help_text="Lower numbers show first")
+    class Meta: ordering = ["order", "name"]
+    def __str__(self): return self.name
